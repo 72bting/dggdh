@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.mapper.archive.ArchiveMapper">
+
+	<!-- 查询档案列表 -->
+	<select id="selectArchiveList" resultType="Archive" parameterType="Archive">
+		select a_id archiveID,
+			a_title archiveTitle,
+			a_name archiveName,
+			a_type archiveType,
+			date_format(a_date, "%Y-%m-%d") archiveDateStr
+		from t_archives
+	</select>
+
+	<!-- 新建档案 -->
+	<insert id="insertArchive" parameterType="Archive">
+		INSERT INTO `t_archives`
+		(`a_title`,
+		`a_name`,
+		`a_type`,
+		`a_date`)
+		VALUES
+		(#{archiveTitle},
+		#{archiveName},
+		#{archiveType},
+		str_to_date(#{archiveDateStr},'%Y-%m-%d'))
+	</insert>
+
+	<!-- 单条删除 -->
+	<delete id="deleteOneArchive" parameterType="Archive">
+		DELETE FROM
+		t_archives
+		WHERE a_id = ${archiveID}
+	</delete>
+
+
+	<!-- 单条查询 -->
+	<select id="selectArchiveByID" resultType="Archive" parameterType="Archive">
+		select a_id archiveID,
+		a_title archiveTitle,
+		a_name archiveName,
+		a_type archiveType,
+		date_format(a_date, "%Y-%m-%d") archiveDateStr
+		from t_archives
+		where a_id = #{archiveID}
+	</select>
+
+	<!-- 修改书籍信息 -->
+	<update id="updateArchive" parameterType="Archive">
+		UPDATE `t_archives`
+		SET
+		`a_title` = #{archiveTitle},
+		`a_name` = #{archiveName},
+		`a_type` = #{archiveType},
+		`a_date` = str_to_date(#{archiveDateStr},'%Y-%m-%d')
+		WHERE `a_id` = #{archiveID}
+	</update>
+
+	<!-- 批量删除 -->
+	<delete id="deleteArchives" parameterType="Book">
+		DELETE FROM
+		t_archives WHERE a_id in
+		<foreach collection="archiveIDS.split(',')" item="item" open=" (" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

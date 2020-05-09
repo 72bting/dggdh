@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.mapper.menu.MenuMapper">
+
+	<!-- 查询菜单树列表 -->
+	<select id="selectIndexMenuList" resultType="Menu" parameterType="Menu">
+
+		<!-- select m.m_id menuID,
+				m.m_text menuText,
+				m.m_href menuHref,
+				m.m_pid menuPID
+		FROM t_menus m
+		where m.m_pid = #{menuPid} -->
+
+		<!-- SELECT m.m_id menuID,
+				m.m_text menuText,
+				m.m_href menuHref,
+				m.m_pid menuPID
+		FROM t_menus m
+		JOIN t_u_m_mid mi
+		ON m.m_id = mi.t_menu_id
+		WHERE mi.t_user_id = #{userID}
+		AND m.m_pid = #{menuPid} -->
+
+		SELECT DISTINCT menu.m_id menuID,
+				menu.m_text menuText,
+				menu.m_href menuHref,
+				menu.m_pid menuPid,
+				menu.m_type menuType
+		FROM t_r_m_mids rmmid
+		JOIN t_u_r_mids urmid
+		ON rmmid.t_role_id = urmid.t_role_id
+		JOIN t_menus menu
+		ON rmmid.t_menu_id = menu.m_id
+		WHERE urmid.t_user_id = #{userID}
+		AND menu.m_pid = #{menuPid}
+	</select>
+
+
+</mapper>

@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd"
+	default-lazy-init="false">
+
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- 调用我们配置的权限管理器 -->
+        <property name="securityManager" ref="securityManager"/>  
+        <!-- 配置我们的登录请求地址 -->
+        <property name="loginUrl" value="/toLogin"/>
+        <!-- 登陆成功的跳转地址 -->
+        <!--<property name="successUrl" value="/rest/index"/>-->
+        <!-- 如果您请求的资源不再您的权限范围，则跳转到/403请求地址 -->
+        <property name="unauthorizedUrl" value="/toNoPermision"/>
+
+        <!-- 自定义过滤器：解决多个角色的关系，我们更改为OR -->
+        <!--<property name="filters">-->
+            <!--<map>-->
+                <!--<entry key="roles">-->
+                    <!--<bean class="com.jy.shiro.CustomRolesAuthorizationFilter" />-->
+                <!--</entry>-->
+            <!--</map>-->
+        <!--</property>-->
+
+        <!--过滤定义，从上而下:过滤条件越严格排序越靠上--> 
+        <property name="filterChainDefinitions">  
+            <value>
+                /toLogin = anon
+                /login = anon
+                /imgcode = anon
+                /js/** = anon
+
+                /book/toList = roles[超级管理员,书籍管理员]
+                /book/deleteAll = perms[book:delete]
+
+                /** = authc
+            </value>
+        </property>  
+    </bean>  
+  
+    <!-- 安全管理器 -->  
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realms">
+            <list>
+                <bean class="com.jy.shiro.UserRealm"></bean>
+            </list>
+        </property>
+    </bean>
+
+</beans>

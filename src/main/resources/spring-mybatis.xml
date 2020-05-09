@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx.xsd"
+       default-lazy-init="false">
+
+       <!-- 配置数据库连接池(druid:alibaba)相当于jdbc的7步连接数据库 -->
+       <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+             init-method="init" destroy-method="close">
+              <!-- 基本属性 url、user、password -->
+              <property name="url" value="${c3p0.orcl.info.url}" />
+              <property name="username" value="${c3p0.orcl.info.username}" />
+              <property name="password" value="${c3p0.orcl.info.password}" />
+       </bean>
+
+		<!-- 数据库连接工厂 -->
+       <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+              <!-- 配置数据源 -->
+              <property name="dataSource" ref="dataSource" />
+              <!-- 配置实体类扫描路径 -->
+              <property name="typeAliasesPackage" value="com.jy.model" />
+              <!-- 加载mybatis核心配置文件 -->
+              <property name="configLocation" value="classpath:mybatis.cfg.xml"/>
+              <!-- 配置映射文件扫描路径 -->
+              <property name="mapperLocations" value="classpath:mapper/**/*-mapper.xml" />
+       </bean>
+
+       <!-- Transaction manager for a single JDBC DataSource
+       	事务管理器
+        -->
+       <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+              <property name="dataSource" ref="dataSource" />
+       </bean>
+
+       <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+              <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />-->
+              <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+              <!-- 配置dao接口扫描路径 -->
+              <property name="basePackage" value="com.jy.mapper" />
+       </bean>
+
+       <!-- 配置事务传播特性 -->
+       <tx:advice id="txAdvice" transaction-manager="transactionManager">
+              <tx:attributes>
+                     <tx:method name="insert*" propagation="REQUIRED"
+                                rollback-for="java.lang.Exception" />
+                     <tx:method name="update*" propagation="REQUIRED"
+                                rollback-for="java.lang.Exception" />
+                     <tx:method name="delete*" propagation="REQUIRED"
+                                rollback-for="java.lang.Exception" />
+                     <tx:method name="get*" propagation="REQUIRED"
+                                rollback-for="java.lang.Exception" />
+                     <tx:method name="*" read-only="true" />
+
+              </tx:attributes>
+       </tx:advice>
+
+       <!-- 配置切面 -->
+       <aop:config>
+              <!--advice-ref：引入第二步中的传播特性 -->
+              <aop:advisor pointcut="execution (* com.jy.service..*.*(..))"
+                           advice-ref="txAdvice" />
+       </aop:config>
+
+</beans>

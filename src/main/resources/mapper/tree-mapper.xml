@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.mapper.tree.TreeMapper">
+
+
+	<!-- 查看菜单树 -->
+	<select id="selectMenuListTree" parameterType="Tree" resultType="Tree">
+		SELECT DISTINCT menu.m_id id,
+				menu.m_text name,
+				menu.m_href href,
+				menu.m_pid pid
+		FROM  t_menus menu
+		WHERE menu.m_pid = #{pid}
+	</select>
+
+	<!-- 添加菜单 -->
+	<insert id="insertTree" parameterType="Tree" keyProperty="id" useGeneratedKeys="true">
+		INSERT INTO t_menus
+			(m_text, m_href, m_pid, m_type)
+		VALUES
+			(#{name}, #{href}, #{pid}, #{type})
+	</insert>
+
+
+	<!-- 删除菜单节点 -->
+	<delete id="deleteTreeNodeByID" parameterType="Tree">
+		DELETE FROM t_menus
+		WHERE m_id = #{id}
+		or m_pid = #{id}
+	</delete>
+
+	<!-- 根据ID查询节点 -->
+	<select id="selectTreeByID" parameterType="Tree" resultType="Tree" >
+		SELECT menu.m_id id,
+				menu.m_text name,
+				menu.m_href href,
+				menu.m_pid pid,
+				menu.m_type type
+		FROM  t_menus menu
+		WHERE menu.m_id = #{id}
+	</select>
+
+	<!-- 修改菜单树 -->
+	<update id="updateTreeByID" parameterType="Tree" >
+		UPDATE t_menus
+		SET m_text = #{name},
+			m_href = #{href}
+		WHERE m_id = #{id}
+	</update>
+
+	<!-- 根据角色查询菜单树 -->
+	<select id="selectRoleMenuList" parameterType="Role" resultType="Tree">
+		SELECT menu.m_id id,
+			menu.m_text NAME,
+			menu.m_href href,
+			menu.m_pid pid,
+			(CASE WHEN rmmid2.t_menu_id IS NULL THEN 0 ELSE 1 END) checked
+		FROM  t_menus menu
+		LEFT JOIN(SELECT t_menu_id
+		FROM t_r_m_mids rmmids
+		WHERE t_role_id = #{roleID}) rmmid2
+		ON menu.m_id = rmmid2.t_menu_id
+	</select>
+</mapper>

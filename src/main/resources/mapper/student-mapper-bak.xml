@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.mapper.student.StudentMapper">
+
+	<!-- 添加 -->
+	<insert id="insertStudent" parameterType="student">
+		<!-- insert into j_students 
+		(t_id, t_name, t_sex, t_join_date, t_age, t_code, t_mobile, t_cover_path, t_banji_id) 
+		values 
+		(J_STUDENTS_SEQ.Nextval, #{stuName}, #{stuSex}, 
+		to_date(#{stuJoinDate}, 'yyyy-MM-dd'), #{stuAge}, #{stuCode}, #{stuMobile}, #{stuCoverPath}, #{stuBanjiID}) -->
+		insert into j_students 
+		(t_name, t_sex, t_join_date, t_age, t_code, t_mobile, t_cover_path, t_banji_id, t_desc, t_addr) 
+		values 
+		(#{stuName}, #{stuSex}, 
+		STR_TO_DATE(#{stuJoinDate}, "%Y-%m-%d"), #{stuAge}, #{stuCode}, #{stuMobile}, #{stuCoverPath}, #{stuBanjiID}, #{stuDesc}, #{stuAddr})
+	</insert>
+
+	<!-- 查询 -->
+	<select id="selectStudentList" resultType="student" parameterType="student">
+		<!-- select j.t_id as stuID, j.t_name as stuName, j.t_cover_path as stuCoverPath,
+			to_char(j.t_join_date, 'yyyy-MM-dd') as stuJoinDate, b.t_name as "banji.banjiName"
+		from j_students j
+	    left join j_banji b
+	    on j.t_banji_id = b.t_id -->
+	    select j.t_id as stuID, j.t_sex as stuSex, j.t_name as stuName, j.t_cover_path as stuCoverPath,
+			DATE_FORMAT(j.t_join_date, "%Y-%m-%d") as stuJoinDate, 
+			b.t_name as "banji.banjiName", j.t_hobby as stuHobby, j.t_status as stuStatus
+		from j_students j
+	    left join j_banji b
+	    on j.t_banji_id = b.t_id
+	    where 1 = 1
+	    <if test="null != stuName and '' != stuName">
+	    	and j.t_name like concat("%",#{stuName},"%")
+	    	<!-- and j.t_name like "%" || #{stuName} || "%" -->
+	    </if>
+	    <if test="null != stuJoinDateBegin and '' != stuJoinDateBegin">
+	    	and STR_TO_DATE(#{stuJoinDateBegin}, "%Y-%m-%d") <![CDATA[<=]]> j.t_join_date
+	    </if>
+	    <if test="null != stuJoinDateEnd and '' != stuJoinDateEnd">
+	    	and STR_TO_DATE(#{stuJoinDateEnd}, "%Y-%m-%d") <![CDATA[>=]]> j.t_join_date
+	    </if>
+	    <if test="0 &lt; stuSex">
+	    	and j.t_sex = #{stuSex}
+	    </if>
+	    <if test="0 != stuBanjiID">
+	    	and j.t_banji_id = #{stuBanjiID}
+	    </if>
+	    <!-- 拼接爱好条件 -->
+	    <if test="null != stuHobbyList">
+	    	<foreach collection="stuHobbyList" item="item" separator=" or " open=" and (" close=")">
+		    	j.t_hobby like concat("%",#{item},"%")
+		    </foreach>
+	    </if>
+	</select>
+	
+	<!-- 查询单条 -->
+	<select id="selectStudentInfoByID" parameterType="student" resultType="student">
+		select j.t_id as stuID, j.t_sex as stuSex, j.t_name as stuName, j.t_cover_path as stuCoverPath,
+			DATE_FORMAT(j.t_join_date, "%Y-%m-%d") as stuJoinDate, b.t_name as "banji.banjiName",
+			b.t_id as "banji.banjiID", j.t_hobby as stuHobby
+		from j_students j
+	    left join j_banji b
+	    on j.t_banji_id = b.t_id
+	    where j.t_id = #{stuID}
+	</select>
+	
+	<!-- 查询班级列表，下拉框回显 -->
+	<select id="selectBanjiList" resultType="banJi">
+		select t_id as banjiID, t_name as banjiName
+    	from j_banji
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteBatch">
+		delete from j_students
+		where t_id in
+		<foreach collection="stuIDSList" item="item" separator="," open="(" close=")">
+		    #{item}
+		</foreach>
+	</delete>
+	
+	<!-- 修改学生状态 -->
+	<update id="updateStudentStatusByID">
+		update j_students set t_status = #{stuStatus} 
+		where t_id = #{stuID}
+	</update>
+	
+	<!-- 查询学生地址树形列表 -->
+	<select id="selectLocationList" parameterType="location" resultType="location">
+		select t_id as id, t_text as text, t_pid as pid, t_href as href 
+		from t_locations 
+		where t_pid = #{pid}
+	</select>
+
+</mapper>

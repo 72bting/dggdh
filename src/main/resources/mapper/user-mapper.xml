@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.mapper.user.UserMapper">
+
+	<!--  查询单条用户信息 -->
+	<select id="login" parameterType="User" resultType="User">
+		SELECT
+		u_id userID,
+		u_account userAccount,
+		u_pwd userPwd
+		FROM t_users
+		WHERE u_account = #{userAccount}
+		AND u_pwd = #{userPwd}
+	</select>
+
+	<!-- 查询所有用户-->
+	<select id="selectUserList" parameterType="User" resultType="User">
+		SELECT
+		u_id userID,
+		u_account userAccount,
+		u_pwd userPwd
+		FROM t_users
+	</select>
+
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="User">
+		DELETE FROM t_users WHERE u_id = #{userID}
+	</delete>
+
+	<!-- 删除用户角色表中对应的用户-->
+	<delete id="deleteUserRoleMappingByID" parameterType="User">
+		DELETE FROM t_u_r_mids WHERE t_user_id = #{userID}
+	</delete>
+
+	<!-- 查询所有用户名-->
+	<select id="selectUserAccount" parameterType="User" resultType="User">
+		SELECT u_account userAccount FROM t_users WHERE u_account = #{userAccount}
+	</select>
+
+	<!-- 创建用户 -->
+	<insert id="insertUserInfo" parameterType="User">
+		INSERT INTO t_users (u_Account,u_pwd) VALUES (#{userAccount},#{userPwd})
+	</insert>
+	
+</mapper>

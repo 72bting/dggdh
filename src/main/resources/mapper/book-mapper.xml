@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.mapper.book.BookMapper">
+
+	<!-- 查询书籍列表 -->
+	<select id="selectBookList" resultType="Book" parameterType="Book">
+		select b_id bookID, 
+			b_name bookName, 
+			b_author bookAuthor, 
+			b_type bookType, 
+			b_price bookPrice, 
+			b_desc bookDesc, 
+			date_format(b_date, "%Y-%m-%d") bookDateStr
+		from t_books 
+	</select>
+	
+	<!-- 新增书籍 -->
+	<insert id="insertbook" parameterType="Book">
+		INSERT INTO `t_books`
+		(`b_name`,
+		`b_author`,
+		`b_type`,
+		`b_price`,
+		`b_desc`,
+		`b_date`)
+		VALUES
+		(#{bookName},
+		#{bookAuthor},
+		#{bookType},
+		#{bookPrice},
+		#{bookDesc},
+		str_to_date(#{bookDateStr},'%Y-%m-%d'))
+	</insert>
+	
+	<!-- 删除(批量删除) -->
+	<!-- 
+		①直接传字符串 $取值:${item}
+		②/③将数组/集合作为参数传到sql:collection="bookArr/bookIDList"
+		④传字符串#取值(用):collection="bookStr.split(',')"
+	 -->
+	<delete id="deletebook" parameterType="Book">
+		DELETE FROM
+		t_books WHERE b_id in 
+		 <foreach collection="bookStr.split(',')" item="item" open=" (" separator="," close=")">
+         	#{item}
+     	</foreach>
+	</delete>
+	
+	
+	<delete id="deleteonebook" parameterType="Book">
+		DELETE FROM
+		t_books 
+		WHERE b_id = ${bookID}
+	</delete>
+	
+	
+	<!-- 单条查询 -->
+	<select id="selectBookByID" resultType="Book" parameterType="Book">
+		select b_id bookID, 
+			b_name bookName, 
+			b_author bookAuthor, 
+			b_type bookType, 
+			b_price bookPrice, 
+			b_desc bookDesc, 
+			date_format(b_date, "%Y-%m-%d") bookDateStr
+		from t_books 
+		where b_id = #{bookID}
+	</select>
+	
+	<!-- 修改书籍信息 -->
+	<update id="updatebook" parameterType="Book">
+		UPDATE `t_books`
+		SET
+		`b_name` = #{bookName},
+		`b_author` = #{bookAuthor},
+		`b_type` = #{bookType},
+		`b_price` = #{bookPrice},
+		`b_desc` = #{bookDesc},
+		`b_date` = str_to_date(#{bookDateStr},'%Y-%m-%d')
+		WHERE `b_id` = #{bookID}
+	</update>
+</mapper>
