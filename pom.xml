@@ -12,7 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>4.3.11.RELEASE</spring.version>
 		<shiro.version>1.2.3</shiro.version>
-		<poi.version>3.17</poi.version>
+		<poi.version>4.1.1</poi.version>
 	</properties>
 
 	<!-- 添加依赖 -->
